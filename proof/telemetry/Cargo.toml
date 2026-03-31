@@ -11,8 +11,13 @@ description = "OpenTelemetry integration for tensor-guardian (stub)"
 tensor-guardian-domain = { path = "../../kernel/domain" }
 
 opentelemetry = { workspace = true }
+opentelemetry_sdk = { workspace = true }
+opentelemetry-stdout = { workspace = true }
+tracing-opentelemetry = { workspace = true }
 tracing = { workspace = true }
 serde = { workspace = true }
+anyhow = { workspace = true }
+tokio = { workspace = true }
 
 [lib]
 name = "tensor_guardian_telemetry"

@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
-use tracing::{error, info};
+use tracing::{error, info, warn};
 
 mod commands;
 mod config;
@@ -31,6 +31,14 @@ struct Cli {
     /// Headless mode (no TUI)
     #[arg(short = 'n', long)]
     headless: bool,
+    
+    /// OTEL export format (stdout, otlp, none)
+    #[arg(long, default_value = "stdout")]
+    otel_format: String,
+    
+    /// OTEL export endpoint (for otlp format)
+    #[arg(long, env = "OTEL_EXPORTER_OTLP_ENDPOINT")]
+    otel_endpoint: Option<String>,
 }
 
 #[derive(Subcommand)]
@@ -98,6 +106,22 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     info!("Starting tensor-guardian");
+    
+    // Initialize OpenTelemetry if not disabled
+    if cli.otel_format != "none" {
+        let otel_config = tensor_guardian_telemetry::TelemetryConfig {
+            service_name: "tensor-guardian".to_string(),
+            service_version: env!("CARGO_PKG_VERSION").to_string(),
+            export_format: cli.otel_format.parse().unwrap_or(tensor_guardian_telemetry::ExportFormat::Stdout),
+            export_interval_ms: 5000,
+        };
+        
+        if let Err(e) = tensor_guardian_telemetry::init_global_telemetry(otel_config) {
+            warn!("Failed to initialize telemetry: {}", e);
+        } else {
+            info!("OpenTelemetry initialized");
+        }
+    }
 
     // Load configuration
     let config = if let Some(config_path) = cli.config {

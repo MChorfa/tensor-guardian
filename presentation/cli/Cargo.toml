@@ -18,6 +18,8 @@ tensor-guardian-app = { path = "../../validation/app" }
 
 # Adapters
 tensor-guardian-adapter-nvml = { path = "../../kernel/adapters/nvml", optional = true }
+tensor-guardian-adapter-metal = { path = "../../kernel/adapters/metal", optional = true }
+tensor-guardian-adapter-tpu = { path = "../../kernel/adapters/tpu", optional = true }
 tensor-guardian-adapter-ebpf = { path = "../../kernel/adapters/ebpf", optional = true }
 
 # NVML (for direct health checks)
@@ -25,6 +27,7 @@ nvml-wrapper = { workspace = true, optional = true }
 
 # Presentation
 tensor-guardian-tui = { path = "../tui" }
+tensor-guardian-telemetry = { path = "../../proof/telemetry" }
 
 # Workspace deps
 clap = { workspace = true }
@@ -39,6 +42,8 @@ toml = { workspace = true }
 [features]
 default = ["nvml", "tui"]
 nvml = ["dep:tensor-guardian-adapter-nvml", "dep:nvml-wrapper"]
+metal = ["dep:tensor-guardian-adapter-metal"]
+tpu = ["dep:tensor-guardian-adapter-tpu"]
 ebpf = ["dep:tensor-guardian-adapter-ebpf"]
 tui = []
 headless = []

@@ -58,6 +58,19 @@ tracing-subscriber = { version = "0.3", features = [
     "fmt",
 ] }
 opentelemetry = "0.23"
+opentelemetry_sdk = { version = "0.24", features = ["rt-tokio"] }
+opentelemetry-stdout = { version = "0.5", features = [
+    "metrics",
+    "trace",
+    "logs",
+] }
+opentelemetry-otlp = { version = "0.17", features = [
+    "grpc-tonic",
+    "trace",
+    "metrics",
+    "logs",
+] }
+tracing-opentelemetry = "0.25"
 metrics = "0.24"
 
 # Time handling
