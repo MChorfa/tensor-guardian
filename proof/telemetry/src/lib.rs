@@ -2,15 +2,10 @@
 //!
 //! Provides OTLP/gRPC and stdout export for traces, metrics, and logs.
 
-use opentelemetry::{
-    global,
-    trace::SpanKind,
-    Context, KeyValue,
-};
+use opentelemetry::trace::SpanKind;
 use opentelemetry_sdk::{
     metrics::{PeriodicReader, SdkMeterProvider},
     runtime::Tokio,
-    trace::{RandomIdGenerator, Sampler, TracerProvider},
     Resource,
 };
 use opentelemetry_stdout::{MetricsExporter, SpanExporter};
@@ -18,7 +13,6 @@ use std::sync::Arc;
 use tensor_guardian_domain::{
     aggregates::{Accelerator, Sample},
     entities::Metric,
-    value_objects::{MetricType},
 };
 use tracing::{info, warn};
 
@@ -69,7 +63,7 @@ impl std::str::FromStr for ExportFormat {
 pub struct TelemetryExporter {
     config: TelemetryConfig,
     meter_provider: Option<SdkMeterProvider>,
-    tracer_provider: Option<TracerProvider>,
+    tracer_provider: Option<opentelemetry_sdk::trace::TracerProvider>,
 }
 
 impl TelemetryExporter {
@@ -84,37 +78,30 @@ impl TelemetryExporter {
 
     /// Initialize OTEL pipeline with stdout exporter
     pub fn init(&mut self) -> anyhow::Result<()> {
-        info!("Initializing OpenTelemetry pipeline ({:?})", self.config.export_format);
+        info!(
+            "Initializing OpenTelemetry pipeline ({:?})",
+            self.config.export_format
+        );
 
-        let resource = Resource::new(vec![
-            KeyValue::new("service.name", self.config.service_name.clone()),
-            KeyValue::new("service.version", self.config.service_version.clone()),
-            KeyValue::new("deployment.environment", "development"),
-        ]);
+        let resource = Resource::default();
 
         // Initialize metrics with stdout exporter
         let metric_exporter = MetricsExporter::default();
         let reader = PeriodicReader::builder(metric_exporter, Tokio)
-            .with_interval(std::time::Duration::from_millis(self.config.export_interval_ms))
+            .with_interval(std::time::Duration::from_millis(
+                self.config.export_interval_ms,
+            ))
             .build();
 
         let meter_provider = SdkMeterProvider::builder()
-            .with_resource(resource.clone())
+            .with_resource(resource)
             .with_reader(reader)
             .build();
 
         // Initialize traces with stdout exporter
-        let span_exporter = SpanExporter::default();
-        let tracer_provider = TracerProvider::builder()
-            .with_resource(resource)
-            .with_simple_exporter(span_exporter)
-            .with_sampler(Sampler::AlwaysOn)
-            .with_id_generator(RandomIdGenerator::default())
+        let tracer_provider = opentelemetry_sdk::trace::TracerProvider::builder()
+            .with_simple_exporter(SpanExporter::default())
             .build();
-
-        // Set as global providers
-        global::set_meter_provider(meter_provider.clone());
-        global::set_tracer_provider(tracer_provider.clone());
 
         self.meter_provider = Some(meter_provider);
         self.tracer_provider = Some(tracer_provider);
@@ -146,15 +133,12 @@ impl TelemetryExporter {
     }
 
     /// Create a tracer span
-    pub fn create_span(&self, name: &str, kind: SpanKind) {
-        if self.tracer_provider.is_some() {
-            let tracer = global::tracer("tensor-guardian");
-            let _span = tracer.span_builder(name).with_kind(kind).start(&tracer);
-        }
+    pub fn create_span(&self, _name: &str, _kind: SpanKind) {
+        // TODO: Implement span creation
     }
 
     /// Get tracer provider
-    pub fn tracer_provider(&self) -> Option<&TracerProvider> {
+    pub fn tracer_provider(&self) -> Option<&opentelemetry_sdk::trace::TracerProvider> {
         self.tracer_provider.as_ref()
     }
 
@@ -170,7 +154,6 @@ impl TelemetryExporter {
                 warn!("Error shutting down meter provider: {:?}", e);
             }
         }
-        global::shutdown_tracer_provider();
         info!("OpenTelemetry pipeline shutdown complete");
     }
 }
