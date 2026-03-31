@@ -13,7 +13,7 @@ pub struct Accelerator {
     pub id: AcceleratorId,
     pub name: String,
     pub accelerator_type: AcceleratorType,
-    pub backend_type: String,  // e.g., "nvml", "metal", "tpu"
+    pub backend_type: String, // e.g., "nvml", "metal", "tpu"
     pub vendor: String,
     pub model: String,
     pub driver_version: Option<String>,
@@ -51,7 +51,8 @@ impl Accelerator {
     ) -> Self {
         let id = AcceleratorId::new();
         let now = Timestamp::now();
-        let accelerator = Self {
+        let accel_type_for_event = accelerator_type.clone();
+        let mut accelerator = Self {
             id,
             name: name.into(),
             accelerator_type,
@@ -72,16 +73,16 @@ impl Accelerator {
         };
 
         // Emit discovery event
-        accelerator.events.push(DomainEvent::AcceleratorDiscovered(
-            AcceleratorDiscovered {
+        accelerator
+            .events
+            .push(DomainEvent::AcceleratorDiscovered(AcceleratorDiscovered {
                 accelerator_id: id,
-                accelerator_type,
+                accelerator_type: accel_type_for_event,
                 name: accelerator.name.clone(),
                 vendor: accelerator.vendor.clone(),
                 model: accelerator.model.clone(),
                 timestamp: now,
-            }
-        ));
+            }));
 
         accelerator
     }
@@ -114,10 +115,10 @@ impl Accelerator {
     pub fn add_sensor(&mut self, sensor: Sensor) -> DomainResult<SensorId> {
         if !self.enabled {
             return Err(crate::DomainError::BackendError(
-                "Cannot add sensor to disabled accelerator".to_string()
+                "Cannot add sensor to disabled accelerator".to_string(),
             ));
         }
-        
+
         let id = sensor.id;
         self.sensors.insert(id, sensor);
         Ok(id)
@@ -141,23 +142,21 @@ impl Accelerator {
     }
 
     pub fn get_enabled_sensors(&self) -> Vec<&Sensor> {
-        self.sensors
-            .values()
-            .filter(|s| s.enabled)
-            .collect()
+        self.sensors.values().filter(|s| s.enabled).collect()
     }
 
     pub fn record_metric(&mut self, metric: Metric) {
         self.last_seen = Timestamp::now();
-        
+
         // Emit collection event
-        self.events.push(DomainEvent::MetricCollected(MetricCollected {
-            metric_id: metric.id,
-            sensor_id: metric.sensor_id,
-            accelerator_id: self.id,
-            metric_type: metric.metric_type,
-            timestamp: metric.timestamp,
-        }));
+        self.events
+            .push(DomainEvent::MetricCollected(MetricCollected {
+                metric_id: metric.id,
+                sensor_id: metric.sensor_id,
+                accelerator_id: self.id,
+                metric_type: metric.metric_type,
+                timestamp: metric.timestamp,
+            }));
     }
 
     pub fn update_last_seen(&mut self) {
@@ -185,7 +184,7 @@ pub struct Sample {
     pub accelerator_id: AcceleratorId,
     pub timestamp: Timestamp,
     pub metrics: Vec<Metric>,
-    pub duration_nanos: u64,  // Time taken to collect
+    pub duration_nanos: u64, // Time taken to collect
     pub labels: Labels,
 }
 

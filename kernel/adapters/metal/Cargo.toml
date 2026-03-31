@@ -1,0 +1,23 @@
+[package]
+name = "tensor-guardian-adapter-metal"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Metal/Neural Engine adapter for Apple platforms (stub)"
+
+[dependencies]
+tensor-guardian-domain = { path = "../../../kernel/domain" }
+
+async-trait = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+# TODO: Add IOKit bindings
+
+[lib]
+name = "tensor_guardian_adapter_metal"
+path = "src/lib.rs"

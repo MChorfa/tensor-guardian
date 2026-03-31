@@ -1,0 +1,22 @@
+[package]
+name = "tensor-guardian-api"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "gRPC/REST API for tensor-guardian (stub)"
+
+[dependencies]
+tensor-guardian-domain = { path = "../../kernel/domain" }
+tensor-guardian-app = { path = "../../validation/app" }
+
+tokio = { workspace = true }
+async-trait = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+serde = { workspace = true }
+
+[lib]
+name = "tensor_guardian_api"
+path = "src/lib.rs"

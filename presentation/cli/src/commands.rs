@@ -53,13 +53,21 @@ pub async fn run_monitor(
 
 pub async fn run_tui(
     interval: u64,
-    log: Option<std::path::PathBuf>,
-    prometheus: Option<u16>,
+    _log: Option<std::path::PathBuf>,
+    _prometheus: Option<u16>,
 ) -> Result<()> {
-    println!("Starting TUI (interval: {}ms)", interval);
+    // Create mock accelerators for testing
+    // In real implementation, these would come from discovery
+    let accelerators = vec![
+        tensor_guardian_domain::aggregates::Accelerator::new(
+            "GPU 0",
+            tensor_guardian_domain::value_objects::AcceleratorType::NvidiaGpu,
+            "nvml",
+            "NVIDIA",
+            "RTX 4090",
+        ),
+    ];
     
-    // TODO: Launch TUI
-    println!("TUI mode not yet implemented, falling back to headless");
-    
-    run_monitor(interval, log, prometheus).await
+    // Launch the actual TUI
+    tensor_guardian_tui::run(accelerators, interval).await
 }

@@ -13,7 +13,7 @@ members = [
     "presentation/cli",
     "proof/attestation",
     "proof/telemetry",
-    "ebpf-programs",
+    # "ebpf-programs",  # Built separately with cargo-bpf
 ]
 resolver = "2"
 
@@ -68,7 +68,8 @@ uuid = { version = "1", features = ["v4", "serde"] }
 aya = { version = "0.13", default-features = false }
 aya-ebpf = "0.1"
 aya-ebpf-bindings = "0.1"
-aya-log = { version = "0.1", default-features = false }
+aya-log = { version = "0.1.13", default-features = false }
+aya-log-ebpf = "0.1"
 
 # Networking / Protocols
 tonic = { version = "0.12", features = ["tls"] }

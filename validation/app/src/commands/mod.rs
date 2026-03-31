@@ -149,7 +149,7 @@ impl CollectMetricsHandler {
                     metric_id: metric.id,
                     sensor_id: metric.sensor_id,
                     accelerator_id: cmd.accelerator_id,
-                    metric_type: metric.metric_type,
+                    metric_type: metric.metric_type.clone(),
                     timestamp: metric.timestamp,
                 }
             );
@@ -160,5 +160,57 @@ impl CollectMetricsHandler {
         }
         
         Ok(sample)
+    }
+}
+
+/// Command to attach an eBPF probe
+#[derive(Debug, Clone)]
+pub struct AttachProbe {
+    pub probe_name: String,
+}
+
+/// Handler for AttachProbe command
+pub struct AttachProbeHandler;
+
+impl AttachProbeHandler {
+    pub fn new() -> Self {
+        Self
+    }
+
+    pub async fn handle(&self, _cmd: AttachProbe) -> AppResult<()> {
+        // TODO: Implement probe attachment
+        Ok(())
+    }
+}
+
+impl Default for AttachProbeHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Command to configure sampling settings
+#[derive(Debug, Clone)]
+pub struct ConfigureSampling {
+    pub interval_ms: u64,
+}
+
+/// Handler for ConfigureSampling command
+pub struct ConfigureSamplingHandler;
+
+impl ConfigureSamplingHandler {
+    pub fn new() -> Self {
+        Self
+    }
+
+    pub async fn handle(&self, _cmd: ConfigureSampling) -> AppResult<()> {
+        // TODO: Implement sampling configuration
+        Ok(())
+    }
+}
+
+impl Default for ConfigureSamplingHandler {
+    fn default() -> Self {
+        Self::new()
     }
 }

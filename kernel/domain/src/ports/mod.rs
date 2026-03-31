@@ -107,9 +107,6 @@ pub trait BackendFactory: Send + Sync {
     /// Create all available backends for the current platform
     fn create_backends(&self) -> Vec<Box<dyn AcceleratorBackend>>;
     
-    /// Create a specific backend by type
-    fn create_backend(&self, backend_type: &str) -> Option<Box<dyn AcceleratorBackend>>;
-    
     /// Check which backends are available on this platform
     fn available_backends(&self) -> Vec<&'static str>;
 }
@@ -143,7 +140,4 @@ pub trait MetricRepository: Send + Sync {
 #[async_trait]
 pub trait EventBus: Send + Sync {
     async fn publish(&self, event: crate::events::DomainEvent) -> DomainResult<()>;
-    async fn subscribe<F>(&self, event_type: &str, handler: F) -> DomainResult<()>
-    where
-        F: Fn(crate::events::DomainEvent) + Send + Sync + 'static;
 }

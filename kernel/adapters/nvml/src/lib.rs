@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use nvml_wrapper::NVML;
+use nvml_wrapper::Nvml;
 use nvml_wrapper::error::NvmlError;
 use tensor_guardian_domain::{
     aggregates::{Accelerator, PciInfo, Sample},
@@ -17,12 +17,12 @@ use tracing::{debug, error, info, warn};
 /// NVML backend for NVIDIA GPU monitoring
 #[derive(Debug)]
 pub struct NvmlBackend {
-    nvml: NVML,
+    nvml: Nvml,
 }
 
 impl NvmlBackend {
     pub fn new() -> DomainResult<Self> {
-        match NVML::init() {
+        match Nvml::init() {
             Ok(nvml) => {
                 info!("NVML initialized successfully");
                 Ok(Self { nvml })
@@ -112,7 +112,8 @@ impl NvmlBackend {
         );
 
         // Fan speed (may not be available on all devices)
-        if device.fan_speed().is_ok() {
+        // TODO: Query number of fans and create sensor for each
+        if device.fan_speed(0).is_ok() {
             sensors.push(
                 Sensor::new(
                     accel_id,
@@ -195,7 +196,7 @@ impl AcceleratorBackend for NvmlBackend {
                 domain: pci_info.domain,
                 bus: pci_info.bus,
                 device: pci_info.device,
-                function: pci_info.function,
+                function: 0, // Not available in nvml-wrapper
             });
             
             // Add version info
@@ -226,15 +227,31 @@ impl AcceleratorBackend for NvmlBackend {
     }
 
     async fn collect(&self, accelerator: &Accelerator) -> DomainResult<Sample> {
-        // Find device by PCI info
+        // Find device by index (nvml-wrapper doesn't have device_by_pci_id)
+        // For now, find by matching PCI bus ID
         let pci_info = accelerator.pci_info.as_ref()
             .ok_or_else(|| DomainError::BackendError("Missing PCI info".to_string()))?;
         
-        let device = self.nvml.device_by_pci_id(
-            pci_info.domain as u32,
-            pci_info.bus as u32,
-            pci_info.device as u32,
-        ).map_err(Self::convert_nvml_error)?;
+        // Get device count and iterate to find matching device
+        let count = self.nvml.device_count()
+            .map_err(Self::convert_nvml_error)?;
+        
+        let mut found_device = None;
+        for i in 0..count {
+            if let Ok(device) = self.nvml.device_by_index(i) {
+                if let Ok(info) = device.pci_info() {
+                    if info.domain == pci_info.domain 
+                        && info.bus == pci_info.bus 
+                        && info.device == pci_info.device {
+                        found_device = Some(device);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        let device = found_device
+            .ok_or_else(|| DomainError::BackendError("Device not found".to_string()))?;
         
         let mut metrics = Vec::new();
         
@@ -340,7 +357,7 @@ impl AcceleratorBackend for NvmlBackend {
                         .unwrap_or_else(SensorId::new),
                     accelerator.id,
                     MetricType::Frequency,
-                    MetricValue::Frequency(Frequency::from_mhz(clock_mhz)),
+                    MetricValue::Frequency(Frequency::from_mhz(clock_mhz as u64)),
                     Unit::Megahertz,
                 ));
             }
@@ -358,7 +375,7 @@ impl AcceleratorBackend for NvmlBackend {
                         .unwrap_or_else(SensorId::new),
                     accelerator.id,
                     MetricType::Frequency,
-                    MetricValue::Frequency(Frequency::from_mhz(clock_mhz)),
+                    MetricValue::Frequency(Frequency::from_mhz(clock_mhz as u64)),
                     Unit::Megahertz,
                 ));
             }
@@ -394,9 +411,9 @@ impl AcceleratorBackend for NvmlBackend {
 pub struct NvmlBackendFactory;
 
 impl NvmlBackendFactory {
-    pub fn try_create() -> Option<Box<dyn AcceleratorBackend>> {
+    pub fn try_create() -> Option<NvmlBackend> {
         match NvmlBackend::new() {
-            Ok(backend) => Some(Box::new(backend)),
+            Ok(backend) => Some(backend),
             Err(_) => None,
         }
     }

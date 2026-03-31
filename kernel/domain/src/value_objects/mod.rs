@@ -35,6 +35,12 @@ impl SensorId {
     }
 }
 
+impl fmt::Display for SensorId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 impl Default for SensorId {
     fn default() -> Self {
         Self::new()
@@ -90,7 +96,7 @@ impl Default for ProbeId {
 }
 
 /// Types of AI accelerators
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum AcceleratorType {
     /// NVIDIA GPU (CUDA)
     NvidiaGpu,
@@ -123,7 +129,7 @@ impl fmt::Display for AcceleratorType {
 }
 
 /// Types of metrics that can be collected
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MetricType {
     /// Compute utilization percentage (0-100%)
     Utilization,
@@ -410,7 +416,9 @@ pub struct Frequency {
 
 impl Frequency {
     pub fn from_mhz(mhz: u64) -> Self {
-        Self { hertz: mhz * 1_000_000 }
+        Self {
+            hertz: mhz * 1_000_000,
+        }
     }
 
     pub fn from_ghz(ghz: f64) -> Self {

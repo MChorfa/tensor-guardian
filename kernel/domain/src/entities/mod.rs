@@ -140,7 +140,7 @@ pub struct Probe {
     pub id: ProbeId,
     pub name: String,
     pub probe_type: ProbeType,
-    pub target: String,  // Kernel function or tracepoint
+    pub target: String, // Kernel function or tracepoint
     pub program_type: ProbeProgramType,
     pub enabled: bool,
     pub labels: Labels,
@@ -148,7 +148,7 @@ pub struct Probe {
 }
 
 /// Types of eBPF probes
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ProbeType {
     /// kprobe - function entry
     Kprobe,
@@ -171,7 +171,7 @@ pub enum ProbeType {
 }
 
 /// What the probe program produces
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ProbeProgramType {
     /// GPU memory allocation events
     GpuMemory,

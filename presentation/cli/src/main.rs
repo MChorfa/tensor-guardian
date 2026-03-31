@@ -82,7 +82,7 @@ enum OutputFormat {
     Yaml,
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 enum ExportFormat {
     Prometheus,
     Opentelemetry,
@@ -146,7 +146,7 @@ async fn list_backends() -> anyhow::Result<()> {
     
     #[cfg(feature = "nvml")]
     {
-        match nvml_wrapper::NVML::init() {
+        match nvml_wrapper::Nvml::init() {
             Ok(_) => println!("  [✓] nvml     - NVIDIA GPU monitoring (NVML)"),
             Err(_) => println!("  [✗] nvml     - NVIDIA GPU monitoring (NVML) - not available"),
         }
@@ -172,7 +172,7 @@ async fn check_health() -> anyhow::Result<()> {
     
     #[cfg(feature = "nvml")]
     {
-        match nvml_wrapper::NVML::init() {
+        match nvml_wrapper::Nvml::init() {
             Ok(_) => println!("  NVML:   OK"),
             Err(e) => println!("  NVML:   FAILED - {}", e),
         }

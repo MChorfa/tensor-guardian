@@ -1,0 +1,19 @@
+[package]
+name = "tensor-guardian-telemetry"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "OpenTelemetry integration for tensor-guardian (stub)"
+
+[dependencies]
+tensor-guardian-domain = { path = "../../kernel/domain" }
+
+opentelemetry = { workspace = true }
+tracing = { workspace = true }
+serde = { workspace = true }
+
+[lib]
+name = "tensor_guardian_telemetry"
+path = "src/lib.rs"
