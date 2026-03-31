@@ -1,0 +1,23 @@
+[package]
+name = "tensor-guardian-tui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Terminal UI for tensor-guardian using ratatui"
+
+[dependencies]
+tensor-guardian-domain = { path = "../../kernel/domain" }
+tensor-guardian-app = { path = "../../validation/app" }
+
+ratatui = { workspace = true }
+crossterm = { workspace = true }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+chrono = { workspace = true }
+
+[lib]
+name = "tensor_guardian_tui"
+path = "src/lib.rs"
