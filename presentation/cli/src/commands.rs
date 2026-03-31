@@ -166,3 +166,15 @@ pub async fn run_tui(
     // Launch the TUI
     tensor_guardian_tui::run(accelerators, interval).await
 }
+
+pub async fn run_api_server(grpc_port: u16, http_port: u16) -> Result<()> {
+    use std::net::SocketAddr;
+    
+    let grpc_addr: SocketAddr = format!("0.0.0.0:{}", grpc_port).parse()?;
+    let http_addr: SocketAddr = format!("0.0.0.0:{}", http_port).parse()?;
+    
+    info!("Starting API server - gRPC on port {}, HTTP on port {}", grpc_port, http_port);
+    
+    let server = tensor_guardian_api::ApiServer::new(grpc_addr, http_addr);
+    server.run().await
+}

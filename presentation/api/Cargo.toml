@@ -5,17 +5,43 @@ edition.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
-description = "gRPC/REST API for tensor-guardian (stub)"
+description = "gRPC/REST API for tensor-guardian"
+build = "build.rs"
 
 [dependencies]
 tensor-guardian-domain = { path = "../../kernel/domain" }
 tensor-guardian-app = { path = "../../validation/app" }
 
+# gRPC
+tonic = { workspace = true }
+prost = { workspace = true }
+
+# HTTP REST
+axum = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+
+# Async runtime
 tokio = { workspace = true }
+tokio-stream = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Time
+chrono = { workspace = true }
+
+# Identifiers
+uuid = { workspace = true }
+
+# Utils
 async-trait = { workspace = true }
 anyhow = { workspace = true }
 tracing = { workspace = true }
-serde = { workspace = true }
+
+[build-dependencies]
+tonic-build = { workspace = true }
 
 [lib]
 name = "tensor_guardian_api"

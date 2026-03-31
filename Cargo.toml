@@ -86,9 +86,13 @@ aya-log-ebpf = "0.1"
 
 # Networking / Protocols
 tonic = { version = "0.12", features = ["tls"] }
+tonic-build = "0.12"
 prost = "0.13"
 hyper = { version = "1", features = ["full"] }
 tower = "0.5"
+tower-http = "0.5"
+axum = "0.7"
+tokio-stream = "0.1"
 
 # gRPC / OpenAPI generation (Buf v2 ecosystem)
 pbjson = "0.7"

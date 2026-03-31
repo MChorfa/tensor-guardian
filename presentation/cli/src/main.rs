@@ -81,6 +81,17 @@ enum Commands {
     
     /// Check health status
     Health,
+    
+    /// Start API server (gRPC + HTTP)
+    Api {
+        /// gRPC server port
+        #[arg(long, default_value = "50051")]
+        grpc_port: u16,
+        
+        /// HTTP REST server port
+        #[arg(long, default_value = "8080")]
+        http_port: u16,
+    },
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
@@ -151,6 +162,9 @@ async fn main() -> anyhow::Result<()> {
         }
         Some(Commands::Health) => {
             check_health().await?;
+        }
+        Some(Commands::Api { grpc_port, http_port }) => {
+            commands::run_api_server(grpc_port, http_port).await?;
         }
         None => {
             // Default to TUI monitor mode

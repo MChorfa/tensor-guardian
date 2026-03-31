@@ -1,0 +1,167 @@
+syntax = "proto3";
+
+package tensor_guardian.api.v1;
+
+// Service for accelerator monitoring and control
+service AcceleratorService {
+  // List all available accelerators
+  rpc ListAccelerators(ListAcceleratorsRequest) returns (ListAcceleratorsResponse);
+
+  // Get single accelerator by ID
+  rpc GetAccelerator(GetAcceleratorRequest) returns (Accelerator);
+
+  // Collect metrics once from an accelerator
+  rpc CollectMetrics(CollectMetricsRequest) returns (CollectMetricsResponse);
+
+  // Stream metrics continuously
+  rpc StreamMetrics(StreamMetricsRequest) returns (stream MetricSample);
+
+  // Health check for all backends
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// Accelerator hardware information
+message Accelerator {
+  // Unique identifier
+  string id = 1;
+
+  // Human-readable name
+  string name = 2;
+
+  // Type: NvidiaGpu, AppleGpu, AppleNeuralEngine, GoogleTpu, etc.
+  string accelerator_type = 3;
+
+  // Hardware vendor
+  string vendor = 4;
+
+  // Model name
+  string model = 5;
+
+  // Backend that manages this accelerator: nvml, metal, tpu-local, tpu-cloud
+  string backend_type = 6;
+
+  // Available sensors for this accelerator
+  repeated Sensor sensors = 7;
+
+  // PCI bus identifier (if applicable)
+  string pci_bus_id = 8;
+
+  // Additional metadata labels
+  map<string, string> labels = 9;
+}
+
+// Sensor information
+message Sensor {
+  // Unique identifier
+  string id = 1;
+
+  // Human-readable name
+  string name = 2;
+
+  // Metric type: Utilization, MemoryUsed, Temperature, Power, etc.
+  string metric_type = 3;
+
+  // Unit: Percent, Bytes, Celsius, Watts, Hertz
+  string unit = 4;
+}
+
+// Metric sample with timestamp
+message MetricSample {
+  // Accelerator ID
+  string accelerator_id = 1;
+
+  // Sensor ID
+  string sensor_id = 2;
+
+  // Metric name
+  string metric_name = 3;
+
+  // Numeric value
+  double value = 4;
+
+  // Unit of measurement
+  string unit = 5;
+
+  // Timestamp in nanoseconds since epoch
+  int64 timestamp_ns = 6;
+
+  // Additional labels/attributes
+  map<string, string> labels = 7;
+}
+
+// Request to list accelerators
+message ListAcceleratorsRequest {
+  // Optional filter by backend type
+  repeated string backend_filter = 1;
+}
+
+// Response with accelerator list
+message ListAcceleratorsResponse {
+  repeated Accelerator accelerators = 1;
+}
+
+// Request to get single accelerator
+message GetAcceleratorRequest {
+  string id = 1;
+}
+
+// Request to collect metrics
+message CollectMetricsRequest {
+  // Accelerator ID to collect from
+  string accelerator_id = 1;
+
+  // Optional sensor filter (empty = all sensors)
+  repeated string sensor_filter = 2;
+}
+
+// Response with collected metrics
+message CollectMetricsResponse {
+  string accelerator_id = 1;
+  int64 timestamp_ns = 2;
+  repeated MetricSample samples = 3;
+}
+
+// Request to stream metrics
+message StreamMetricsRequest {
+  // Accelerator IDs to monitor (empty = all accelerators)
+  repeated string accelerator_ids = 1;
+
+  // Sampling interval in milliseconds
+  uint64 interval_ms = 2;
+
+  // Optional sensor filter
+  repeated string sensor_filter = 3;
+}
+
+// Health check request
+message HealthCheckRequest {}
+
+// Health check response
+message HealthCheckResponse {
+  // Overall system health
+  bool healthy = 1;
+
+  // Per-backend status
+  repeated BackendStatus backends = 2;
+
+  // Server version
+  string version = 3;
+}
+
+// Backend status information
+message BackendStatus {
+  // Backend type: nvml, metal, tpu-local, tpu-cloud
+  string backend_type = 1;
+
+  // Whether backend is healthy
+  bool healthy = 2;
+
+  // Backend version string
+  string version = 3;
+
+  // Status message (OK, error description, etc.)
+  string status_message = 4;
+
+  // Number of accelerators managed by this backend
+  int32 accelerator_count = 5;
+}

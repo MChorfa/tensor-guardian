@@ -1,27 +1,37 @@
 //! gRPC/REST API for tensor-guardian
-//! 
-//! TODO: Implement tonic-based gRPC server and OpenAPI/REST endpoints
+//!
+//! Provides dual-protocol API server for accelerator monitoring:
+//! - gRPC (port 50051): High-performance streaming for real-time metrics
+//! - REST HTTP (port 8080): Simple JSON endpoints for integrations
 
-use anyhow::Result;
+pub mod error;
+pub mod convert;
+pub mod server;
 
-/// API server configuration
-pub struct ApiServer;
-
-impl ApiServer {
-    pub fn new() -> Self {
-        Self
-    }
-
-    /// Start the API server
-    pub async fn start(&self, _port: u16) -> Result<()> {
-        // TODO: Implement gRPC/REST server using tonic and axum
-        tracing::info!("API server not yet implemented");
-        Ok(())
-    }
+pub mod grpc {
+    //! gRPC service implementation
+    pub mod accelerator;
 }
 
-impl Default for ApiServer {
-    fn default() -> Self {
-        Self::new()
-    }
+pub mod rest {
+    //! REST HTTP handlers
+    pub mod handlers;
 }
+
+// Include generated protobuf code
+pub mod proto {
+    #![allow(clippy::all)]
+    tonic::include_proto!("tensor_guardian.api.v1");
+}
+
+pub use error::{ApiError, Result};
+pub use server::ApiServer;
+
+// Re-export generated types for convenience
+pub use proto::accelerator_service_client::AcceleratorServiceClient;
+pub use proto::accelerator_service_server::{AcceleratorService, AcceleratorServiceServer};
+pub use proto::{
+    Accelerator, BackendStatus, CollectMetricsRequest, CollectMetricsResponse,
+    GetAcceleratorRequest, HealthCheckRequest, HealthCheckResponse, ListAcceleratorsRequest,
+    ListAcceleratorsResponse, MetricSample, Sensor, StreamMetricsRequest,
+};

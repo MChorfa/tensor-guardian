@@ -27,6 +27,7 @@ nvml-wrapper = { workspace = true, optional = true }
 
 # Presentation
 tensor-guardian-tui = { path = "../tui" }
+tensor-guardian-api = { path = "../api" }
 tensor-guardian-telemetry = { path = "../../proof/telemetry" }
 
 # Workspace deps
