@@ -1,0 +1,23 @@
+[package]
+name = "tensor-guardian-adapter-nvml"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "NVML adapter for NVIDIA GPU monitoring (Linux)"
+
+[dependencies]
+tensor-guardian-domain = { path = "../../../kernel/domain" }
+
+nvml-wrapper = { workspace = true }
+async-trait = { workspace = true }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+serde = { workspace = true }
+
+[lib]
+name = "tensor_guardian_adapter_nvml"
+path = "src/lib.rs"

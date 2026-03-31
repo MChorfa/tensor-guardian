@@ -1,5 +1,29 @@
-nv-monitor
-nv-monitor-dbg
-test_meminfo
+# Old C binary artifacts
+/nv-monitor
+/nv-monitor-dbg
+/test_meminfo
 *.o
-demo-load
+/demo-load
+
+# Rust
+target/
+Cargo.lock
+*.rlib
+*.so
+*.dylib
+*.dll
+
+# eBPF
+*.bpf.o
+*.skel.h
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

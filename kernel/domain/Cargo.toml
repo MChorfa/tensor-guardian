@@ -1,0 +1,22 @@
+[package]
+name = "tensor-guardian-domain"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Core domain logic for tensor-guardian - accelerator monitoring aggregates"
+
+[dependencies]
+thiserror = { workspace = true }
+serde = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+mockall = { workspace = true }
+
+[lib]
+name = "tensor_guardian_domain"
+path = "src/lib.rs"

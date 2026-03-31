@@ -1,0 +1,24 @@
+[package]
+name = "tensor-guardian-adapter-ebpf"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "eBPF adapter for kernel-level hardware event monitoring"
+
+[dependencies]
+tensor-guardian-domain = { path = "../../../kernel/domain" }
+
+aya = { workspace = true, features = ["async_tokio"] }
+aya-log = { workspace = true }
+async-trait = { workspace = true }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+libc = "0.2"
+
+[lib]
+name = "tensor_guardian_adapter_ebpf"
+path = "src/lib.rs"
